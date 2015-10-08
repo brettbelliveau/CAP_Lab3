@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.io.File;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -25,8 +26,8 @@ public class Driver extends Configured implements Tool {
 	
     //Main method: Calls run and exits
     public static void main(String[] args) throws Exception {
-    	int res = ToolRunner.run(new Configuration(), new Driver(), args);
-        System.exit(res);
+    	int result = ToolRunner.run(new Configuration(), new Driver(), args);
+        System.exit(result);
     }
     
     //Run method: 
@@ -46,29 +47,29 @@ public class Driver extends Configured implements Tool {
     public void job1(String args[]) {
        	try {
             Configuration conf = new Configuration();
-
+            
+            File parsedXml = new File(pr.parseXml(args));
+            
             Job job = Job.getInstance(conf);
-            job.setJarByClass(WordCount.class);
+            job.setJarByClass(Driver.class);
 
-            // specify a mapper
-            job.setMapperClass(WordCountMapper.class);
+            job.setMapperClass(MRMapper.class);
 
-            // specify a reducer
-            job.setReducerClass(WordCountReducer.class);
+            job.setReducerClass(MRReducer.class);
 
-            // specify output types
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(IntWritable.class);
 
-            // specify input and output DIRECTORIES
-            FileInputFormat.addInputPath(job, new Path(args[0]));
+            //FileInputFormat.addInputPath(job, new Path(args[0]));
+            FileInputFormat.addInputPath(job, new Path(parsedXml.toPath().toString())); 
             job.setInputFormatClass(TextInputFormat.class);
 
             FileOutputFormat.setOutputPath(job, new Path(args[1]));
             job.setOutputFormatClass(TextOutputFormat.class);
 
             job.waitForCompletion(true);
-        } catch (InterruptedException|ClassNotFoundException|IOException e) {
+            
+        } catch (Exception e) {
             System.err.println("Error during job one.");
             e.printStackTrace();
         }
