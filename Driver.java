@@ -58,7 +58,7 @@ public class Driver extends Configured implements Tool {
             job.setReducerClass(MRReducer.class);
 
             job.setOutputKeyClass(Text.class);
-            job.setOutputValueClass(IntWritable.class);
+            job.setOutputValueClass(Text.class);
 
             //FileInputFormat.addInputPath(job, new Path(args[0]));
             FileInputFormat.addInputPath(job, new Path(parsedXml.toPath().toString())); 
