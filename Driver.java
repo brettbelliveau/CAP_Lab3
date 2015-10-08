@@ -14,6 +14,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.mahout.*;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.dom4j.*;
 
 public class Driver extends Configured implements Tool {
     
@@ -35,10 +38,10 @@ public class Driver extends Configured implements Tool {
     	//Have something here eventually
     	
         job1(args);
-        job2(args);
-        job3(args);
-        job4(args);
-        job5(args);
+        //job2(args);
+        //job3(args);
+        //job4(args);
+        //job5(args);
         
         return 0;
     }
@@ -46,6 +49,25 @@ public class Driver extends Configured implements Tool {
     //Extracts wikilinks and removes red links
     public void job1(String args[]) {
        	try {
+       		
+       		Configuration conf = new Configuration();
+       		conf.set("xmlinput.start", "<page>"); //set the start tag
+       		conf.set("xmlinput.end", "</page>"); // set the end tag
+       		
+       		Job job = Job.getInstance(conf, "WikiGraph");
+       		job.setJarByClass(ExtractTitlesLinks.class);
+       		job.setOutputKeyClass(Text.class);
+       		job.setOutputValueClass(Text.class);
+       		job.setMapperClass(MRMapper.class);
+       		job.setReducerClass(MRReducer.class);
+       		job.setInputFormatClass(XMLInputFormat.class); // tell hadoop to use mahout XmlInputFormat (instead of TextInputFormat)
+       		job.setOutputFormatClass(TextOutputFormat.class);
+       		FileInputFormat.addInputPath(job, new Path(args[0]));
+       		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+       		job.setNumReduceTasks(1);
+       		job.waitForCompletion(true);
+       		/*
+       	
             Configuration conf = new Configuration();
             
             File parsedXml = new File(pr.parseXml(args));
@@ -68,7 +90,7 @@ public class Driver extends Configured implements Tool {
             job.setOutputFormatClass(TextOutputFormat.class);
 
             job.waitForCompletion(true);
-            
+            */
         } catch (Exception e) {
             System.err.println("Error during job one.");
             e.printStackTrace();
