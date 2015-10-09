@@ -28,14 +28,15 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
     	}
     	
         while(body.contains("[[")){
-        	String split[] = body.split("[[");
-        	String secondsplit[] = split[1].split("]]");
+        	String split[] = body.split("\\[\\[", 2);
+        	String secondsplit[] = split[1].split("\\]\\]", 2);
         	
         	String linkstr = secondsplit[0];
-        	
+
         	if(linkstr.contains("|")){
-        		String thirdsplit[] = linkstr.split("|");
+        		String thirdsplit[] = linkstr.split("\\|", 2);
         		linkstr = thirdsplit[0];
+        		secondsplit[1] = thirdsplit[1];
         	}
         	
         	linkstr.replaceAll(" ", "_");

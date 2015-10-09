@@ -38,8 +38,8 @@ public class Driver extends Configured implements Tool {
     	//Have something here eventually
     	
         job1(args);
-        //job2(args);
-        //job3(args);
+        job2(args);
+        job3(args);
         //job4(args);
         //job5(args);
         
@@ -63,35 +63,11 @@ public class Driver extends Configured implements Tool {
        		job.setInputFormatClass(XMLInputFormat.class); // tell hadoop to use mahout XmlInputFormat (instead of TextInputFormat)
        		job.setOutputFormatClass(TextOutputFormat.class);
        		FileInputFormat.addInputPath(job, new Path(args[0]));
-       		FileOutputFormat.setOutputPath(job, new Path(args[1]));
+       		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job1"));
        		job.setNumReduceTasks(1);
        		job.waitForCompletion(true);
-       		/*
        	
-            Configuration conf = new Configuration();
-            
-            File parsedXml = new File(pr.parseXml(args));
-            
-            Job job = Job.getInstance(conf);
-            job.setJarByClass(Driver.class);
-
-            job.setMapperClass(MRMapper.class);
-
-            job.setReducerClass(MRReducer.class);
-
-            job.setOutputKeyClass(Text.class);
-            job.setOutputValueClass(Text.class);
-
-            //FileInputFormat.addInputPath(job, new Path(args[0]));
-            FileInputFormat.addInputPath(job, new Path(parsedXml.toPath().toString())); 
-            job.setInputFormatClass(TextInputFormat.class);
-
-            FileOutputFormat.setOutputPath(job, new Path(args[1]));
-            job.setOutputFormatClass(TextOutputFormat.class);
-
-            job.waitForCompletion(true);
-            */
-        } catch (Exception e) {
+       	} 	catch (Exception e) {
             System.err.println("Error during job one.");
             e.printStackTrace();
         }
@@ -100,6 +76,25 @@ public class Driver extends Configured implements Tool {
     //Generates the outlink adjacency graph
     public void job2(String args[]){
     	try {
+    		Configuration conf = new Configuration();
+	
+	        Job job = Job.getInstance(conf);
+	        job.setJarByClass(Driver.class);
+	
+	        job.setMapperClass(MapperJob2.class);
+	        job.setReducerClass(ReducerJob2.class);
+	
+	        job.setOutputKeyClass(Text.class);
+	        job.setOutputValueClass(Text.class);
+	
+	        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/job1"));
+	        job.setInputFormatClass(TextInputFormat.class);
+	
+	        FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job2"));
+	        job.setOutputFormatClass(TextOutputFormat.class);
+	        
+       		job.setNumReduceTasks(1);
+	        job.waitForCompletion(true);
     		
 	    } catch (Exception e) {
 	        System.err.println("Error during job two.");
@@ -110,6 +105,25 @@ public class Driver extends Configured implements Tool {
     //Computes the total number of pages (denoted as N)
     public void job3(String args[]){
     	try {
+    		Configuration conf = new Configuration();
+    		
+	        Job job = Job.getInstance(conf);
+	        job.setJarByClass(Driver.class);
+	
+	        job.setMapperClass(MapperJob3.class);
+	        job.setReducerClass(ReducerJob3.class);
+	
+	        job.setOutputKeyClass(Text.class);
+	        job.setOutputValueClass(Text.class);
+	
+	        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/job2"));
+	        job.setInputFormatClass(TextInputFormat.class);
+	
+	        FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job3"));
+	        job.setOutputFormatClass(TextOutputFormat.class);
+	        
+       		job.setNumReduceTasks(1);
+	        job.waitForCompletion(true);
     		
 	    } catch (Exception e) {
 	        System.err.println("Error during job three.");
