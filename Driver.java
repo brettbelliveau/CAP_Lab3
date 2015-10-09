@@ -14,9 +14,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.mahout.*;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.dom4j.*;
 
 public class Driver extends Configured implements Tool {
     
@@ -63,7 +60,7 @@ public class Driver extends Configured implements Tool {
        		job.setInputFormatClass(XMLInputFormat.class); // tell hadoop to use mahout XmlInputFormat (instead of TextInputFormat)
        		job.setOutputFormatClass(TextOutputFormat.class);
        		FileInputFormat.addInputPath(job, new Path(args[0]));
-       		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job1"));
+       		FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/iter0"));
        		job.setNumReduceTasks(1);
        		job.waitForCompletion(true);
        	
@@ -87,7 +84,7 @@ public class Driver extends Configured implements Tool {
 	        job.setOutputKeyClass(Text.class);
 	        job.setOutputValueClass(Text.class);
 	
-	        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/job1"));
+	        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter0"));
 	        job.setInputFormatClass(TextInputFormat.class);
 	
 	        FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job2"));
@@ -134,6 +131,28 @@ public class Driver extends Configured implements Tool {
     //Performs PageRank for 8 iterations (input link graph, output link graph)
     public void job4(String args[]){
     	try {
+    		for (int i = 0; i < 8; i++){
+	    		Configuration conf = new Configuration();
+	    		conf.set("iteration", ""+i+1);
+	    		
+		        Job job = Job.getInstance(conf);
+		        job.setJarByClass(Driver.class);
+		
+		        job.setMapperClass(MapperJob4.class);
+		        job.setReducerClass(ReducerJob4.class);
+		
+		        job.setOutputKeyClass(Text.class);
+		        job.setOutputValueClass(Text.class);
+		
+		        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter" + i));
+		        job.setInputFormatClass(TextInputFormat.class);
+		
+		        FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/iter" + i+1));
+		        job.setOutputFormatClass(TextOutputFormat.class);
+		        
+	       		job.setNumReduceTasks(1);
+		        job.waitForCompletion(true);
+    		}
     		
 	    } catch (Exception e) {
 	        System.err.println("Error during job four.");
@@ -142,12 +161,38 @@ public class Driver extends Configured implements Tool {
     }
 
     //Prints readable list of article names and PageRank scores (desc) from link graph
+    //Gonna need some witchcraft for this bad boy
     public void job5(String args[]){
     	try {
+    		Configuration conf = new Configuration();
     		
+	        Job job = Job.getInstance(conf);
+	        job.setJarByClass(Driver.class);
+	
+	        job.setMapperClass(MapperJob5.class);
+	        job.setReducerClass(ReducerJob5.class);
+	
+	        job.setOutputKeyClass(Text.class);
+	        job.setOutputValueClass(Text.class);
+	
+	        FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter8"));
+	        job.setInputFormatClass(TextInputFormat.class);
+	
+	        FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job5"));
+	        job.setOutputFormatClass(TextOutputFormat.class);
+	        
+       		job.setNumReduceTasks(1);
+	        job.waitForCompletion(true);
 	    } catch (Exception e) {
 	        System.err.println("Error during job five.");
 	        e.printStackTrace();
 	    }
     }
+    
+    public int getN () { return N; }
+    
+    public void setN(int set) {
+    	N = set;
+    }
+    
 }

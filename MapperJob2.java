@@ -14,8 +14,12 @@ public class MapperJob2 extends Mapper<LongWritable, Text, Text, Text>{
         
     	String line = value.toString();
         StringTokenizer itr = new StringTokenizer(line);
-        k.set(itr.nextToken());
-        v.set(itr.nextToken());
-        context.write(v,k);
+        while (itr.hasMoreTokens()){
+        	k.set(itr.nextToken());
+	        if (itr.hasMoreTokens()){
+	        	v.set(itr.nextToken());
+	        	context.write(v,k);
+	        }
+        }
     }
 }

@@ -19,7 +19,7 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
         ExtractTitlesLinks extract = new ExtractTitlesLinks(line); 
     	String titlestr = extract.extractTitle();
     	String body = extract.extractBody();
-    	titlestr.replaceAll(" ", "_");
+    	titlestr = titlestr.replaceAll(" ", "_");
     	title.set(titlestr);
     	
     	if(!body.contains("[[")){
@@ -27,24 +27,63 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
     		context.write(title, link);
     	}
     	
-        while(body.contains("[[")){
+    	while(body.contains("[[")){
         	String split[] = body.split("\\[\\[", 2);
+        	
         	String secondsplit[] = split[1].split("\\]\\]", 2);
         	
-        	String linkstr = secondsplit[0];
+        	String linkstr = "";
+        	
+        	if (secondsplit[0].contains("[[")){
+        		String tempsplit[] = secondsplit[0].split("\\[\\[", 2);
+        		secondsplit = secondsplit[1].split("\\]\\]", 2);
+        		linkstr = tempsplit[1];
+        	}
+        	else
+        		linkstr = secondsplit[0];
 
+        	if (secondsplit.length > 1)
+        		body = secondsplit[1];
+        	
         	if(linkstr.contains("|")){
         		String thirdsplit[] = linkstr.split("\\|", 2);
         		linkstr = thirdsplit[0];
-        		secondsplit[1] = thirdsplit[1];
+        		if (thirdsplit.length > 1)
+        			secondsplit[1] = thirdsplit[1];
         	}
         	
-        	linkstr.replaceAll(" ", "_");
+        	linkstr = linkstr.replaceAll(" ", "_");
         	
-        	link.set(linkstr);
-        	body = secondsplit[1];
+        	if (isValid(linkstr)){
+        		link.set(linkstr);
         	
-        	context.write(title, link);
+        		context.write(title, link);
+        	}
+        	if (secondsplit.length < 2)
+        		break;
         }
+    }
+    
+    public boolean isValid(String link) {
+    	boolean valid = true;
+    	
+    	if (link.contains("#"))
+    		valid = false;
+    	else if (link.contains("Help:"))
+    		valid = false;
+    	else if (link.contains("commons:"))
+    		valid = false;
+    	else if (link.contains("Special:"))
+    		valid = false;
+    	else if (link.contains("Category:"))
+    		valid = false;
+    	else if (link.contains("File:"))
+    		valid = false;
+    	else if (link.startsWith("/"))
+    		valid = false;
+    	else if (link.contains("wikt:"))
+    		valid = false;
+    		
+    	return valid;
     }
 }

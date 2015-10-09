@@ -11,11 +11,12 @@ public class ReducerJob2 extends Reducer<Text, Text, Text, Text> {
     	for(Text t : values) {
         	if (t.toString().contains("$$$")) {
         		str += "";
+            	str += '\t';
         	}
-        	else {
+        	else if (!str.contains(t.toString())){
         		str += t.toString();
+            	str += '\t';
         	}
-        	str += '\t';
         }
     	link.set(str);
 		context.write(key, link);
