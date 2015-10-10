@@ -8,8 +8,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
 	
-    
-	private final IntWritable one = new IntWritable(1);
     private Text title = new Text();
     private Text link = new Text();
 
@@ -22,10 +20,9 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
     	titlestr = titlestr.replaceAll(" ", "_");
     	title.set(titlestr);
     	
-    	if(!body.contains("[[")){
-    		link.set("$$$");
-    		context.write(title, link);
-    	}
+    	link.set("$valid$");
+
+    	context.write(title, link);
     	
     	while(body.contains("[[")){
         	String split[] = body.split("\\[\\[", 2);
@@ -53,12 +50,10 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
         	}
         	
         	linkstr = linkstr.replaceAll(" ", "_");
-        	
-        	if (isValid(linkstr)){
-        		link.set(linkstr);
-        	
-        		context.write(title, link);
-        	}
+        	link.set(linkstr);
+    	
+    		context.write(link, title);
+    	
         	if (secondsplit.length < 2)
         		break;
         }
