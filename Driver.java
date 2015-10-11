@@ -20,6 +20,7 @@ import java.net.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.DoubleWritable.Comparator;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
@@ -42,7 +43,9 @@ public class Driver extends Configured implements Tool {
 		//job2(args);
 		//job3(args);
 		//job4(args);
-		job5(args);
+		//job5(args);
+		
+		copyFiles(args);
 
 		return 0;
 	}
@@ -205,7 +208,6 @@ public class Driver extends Configured implements Tool {
 		for (int i = 0; i < 2; i++) {
 			try {
 				Configuration conf = new Configuration();
-				conf.set("iteration", ""+(i+1));
 				conf.set("NumberOfItems", "N=20000");
 				
 				Job job = Job.getInstance(conf);
@@ -213,8 +215,10 @@ public class Driver extends Configured implements Tool {
 	
 				job.setMapperClass(MapperJob5.class);
 				job.setReducerClass(ReducerJob5.class);
-	
-				job.setOutputKeyClass(Text.class);
+				
+				job.setSortComparatorClass(ReverseComparator.class);
+				
+				job.setOutputKeyClass(DoubleWritable.class);
 				job.setOutputValueClass(Text.class);
 				
 				if (i == 0)
@@ -225,7 +229,7 @@ public class Driver extends Configured implements Tool {
 				
 				job.setInputFormatClass(TextInputFormat.class);
 				
-				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/Job5/p" + (i+1)));
+				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job5/p" + (i+1)));
 				job.setOutputFormatClass(TextOutputFormat.class);
 	
 				job.setNumReduceTasks(1);
@@ -235,16 +239,78 @@ public class Driver extends Configured implements Tool {
 				e.printStackTrace();
 			}
 		}
-		
-		//copyFiles(args);
 	}
+	
+	static class ReverseComparator extends WritableComparator {
+        private static final Text.Comparator TEXT_COMPARATOR = new Text.Comparator();
+
+        public ReverseComparator() {
+            super(Text.class);
+        }
+
+        @Override
+        public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+            try {
+                return (-1)* TEXT_COMPARATOR
+                        .compare(b1, s1, l1, b2, s2, l2);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        @Override
+        public int compare(WritableComparable a, WritableComparable b) {
+            if (a instanceof Text && b instanceof Text) {
+                return (-1)*(((Text) a)
+                        .compareTo((Text) b));
+            }
+            return super.compare(a, b);
+        }
+    }	
 	
 	public void copyFiles(String[] args){
 		try {
+			Configuration conf = new Configuration();
 			
+			//File one
+			String the_string_path_to_src = args[1] + "/temp/belliveau/job2/part-r-00000";
+			String the_string_path_to_dst = args[1] + "/results/PageRank.outlink.out";
+			Path srcPath = new Path(the_string_path_to_src);
+			Path dstPath = new Path(the_string_path_to_dst);
+			FileSystem fs_src = srcPath.getFileSystem(conf);
+			FileSystem fs_dst = dstPath.getFileSystem(conf);
+			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
+	
+			//File two
+			the_string_path_to_src = args[1] + "/temp/belliveau/job5/p1/part-r-00000";
+			the_string_path_to_dst = args[1] + "/results/PageRank.iter1.out";
+			srcPath = new Path(the_string_path_to_src);
+			dstPath = new Path(the_string_path_to_dst);
+			fs_src = srcPath.getFileSystem(conf);
+			fs_dst = dstPath.getFileSystem(conf);
+			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
 			
+
+			//File three
+			the_string_path_to_src = args[1] + "/temp/belliveau/job5/p2/part-r-00000";
+			the_string_path_to_dst = args[1] + "/results/PageRank.iter8.out";
+			srcPath = new Path(the_string_path_to_src);
+			dstPath = new Path(the_string_path_to_dst);
+			fs_src = srcPath.getFileSystem(conf);
+			fs_dst = dstPath.getFileSystem(conf);
+			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
+
+			//File four
+			the_string_path_to_src = args[1] + "/temp/belliveau/job3/part-r-00000";
+			the_string_path_to_dst = args[1] + "/results/PageRank.n.out";
+			srcPath = new Path(the_string_path_to_src);
+			dstPath = new Path(the_string_path_to_dst);
+			fs_src = srcPath.getFileSystem(conf);
+			fs_dst = dstPath.getFileSystem(conf);
+			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
 			
 		}
+			
 		catch(Exception e) { 
 			e.printStackTrace(); 
 		}

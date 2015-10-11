@@ -14,13 +14,11 @@ public class MapperJob5 extends Mapper<LongWritable, Text, DoubleWritable, Text>
 	private double N = 0.0;
 
     public void map(LongWritable scorelw, Text values, Context context) throws IOException, InterruptedException {
-    	Configuration conf = new Configuration();
-    	String iterationstr = conf.get("iteration");
-    	int iteration = Integer.parseInt(iterationstr);
+    	Configuration conf = context.getConfiguration();
     	String Nstr = conf.get("NumberOfItems");
     	String split[] = Nstr.split("=");
     	split[1] = split[1].trim();
-    	N = Double.parseDouble(split[1]);
+    	N = Long.parseLong(split[1]);
     	
     	String line = values.toString();
     	
