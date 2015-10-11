@@ -29,15 +29,15 @@ public class ReducerJob4 extends Reducer<Text, Text, Text, Text> {
     	for(Text value : values)
     		list.add(value.toString());
     	
-        double score = ((1 - 0.85) / N); //Initial score for all
+        double score = ((0.150000) / N); //Initial score for all
         String currentItem = "";
-        double itemsum = 0;
+        double itemsum = 0.0;
         
         for (int index = 0; index < list.size(); index++){
 	        String line = list.get(index);
 	        StringTokenizer str = new StringTokenizer(line);
 	        currentItem = str.nextToken();
-	        double currentItemScore = 0;
+	        double currentItemScore = 0.0;
 	        if (currentItem.contains(key.toString())) //dummy item
 	        {}
 	        else {
@@ -46,14 +46,14 @@ public class ReducerJob4 extends Reducer<Text, Text, Text, Text> {
 	        		currentItemScore = Double.parseDouble(currentItemScoreStr);
 	        	}
 	        	else
-	        		currentItemScore = (1/N);
+	        		currentItemScore = (1.0/N);
 	        	
 	        	
 	        	currentItemScore /= Double.parseDouble(str.nextToken());
 	        	itemsum += currentItemScore;
 	        }
     	}
-        score += itemsum*(0.85);
+        score += itemsum*(0.8500000);
 
         scoreT.set("" + score);
         context.write(key, scoreT);

@@ -124,7 +124,7 @@ public class Driver extends Configured implements Tool {
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(Text.class);
 
-			FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp//job2"));
+			FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp/job2"));
 			job.setInputFormatClass(TextInputFormat.class);
 
 			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/job3"));
@@ -208,7 +208,7 @@ public class Driver extends Configured implements Tool {
 		for (int i = 0; i < 2; i++) {
 			try {
 				Configuration conf = new Configuration();
-				conf.set("NumberOfItems", "N=20000");
+				conf.set("NumberOfItems", N);
 				
 				Job job = Job.getInstance(conf);
 				job.setJarByClass(Driver.class);
