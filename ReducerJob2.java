@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -17,13 +18,17 @@ public class ReducerJob2 extends Reducer<Text, Text, Text, Text> {
     	
     	String str = "";
     	
+    	ArrayList<String> added = new ArrayList<>();
+    	
         for (int i = 0; i < list.size(); i++){
+        	
         	if (list.get(i).equals(key.toString())) {
         		//do nothing
         	}
-        	else if (!str.contains(list.get(i))){
+        	else if (!added.contains(list.get(i))){
         		str += list.get(i);
             	str += '\t';
+            	added.add(list.get(i));
         	}
         }
     	link.set(str);
