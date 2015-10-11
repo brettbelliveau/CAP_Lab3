@@ -39,11 +39,11 @@ public class Driver extends Configured implements Tool {
 	public int run(String args[]) {
 		// Have something here eventually
 
-		//job1(args);
-		//job2(args);
-		//job3(args);
-		//job4(args);
-		//job5(args);
+		job1(args);
+		job2(args);
+		job3(args);
+		job4(args);
+		job5(args);
 		
 		copyFiles(args);
 
@@ -71,7 +71,7 @@ public class Driver extends Configured implements Tool {
 															// TextInputFormat)
 			job.setOutputFormatClass(TextOutputFormat.class);
 			FileInputFormat.addInputPath(job, new Path(args[0]));
-			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/iter0"));
+			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/iter0"));
 			job.setNumReduceTasks(1);
 			job.waitForCompletion(true);
 
@@ -95,10 +95,10 @@ public class Driver extends Configured implements Tool {
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(Text.class);
 
-			FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter0"));
+			FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp/iter0"));
 			job.setInputFormatClass(TextInputFormat.class);
 
-			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job2"));
+			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/job2"));
 			job.setOutputFormatClass(TextOutputFormat.class);
 
 			job.setNumReduceTasks(1);
@@ -124,16 +124,16 @@ public class Driver extends Configured implements Tool {
 			job.setOutputKeyClass(Text.class);
 			job.setOutputValueClass(Text.class);
 
-			FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/job2"));
+			FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp//job2"));
 			job.setInputFormatClass(TextInputFormat.class);
 
-			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job3"));
+			FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/job3"));
 			job.setOutputFormatClass(TextOutputFormat.class);
 
 			job.setNumReduceTasks(1);
 			job.waitForCompletion(true);
 
-			Path path = new Path(args[1] + "/temp/belliveau/job3/part-r-00000");
+			Path path = new Path(args[1] + "/tmp/job3/part-r-00000");
 			FileSystem fs = path.getFileSystem(conf);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(path)));
 			String line;
@@ -158,7 +158,7 @@ public class Driver extends Configured implements Tool {
 				conf.set("NumberOfItems", N);
 
 				if (i > 0) { // Time to set all the scores
-					Path path = new Path(args[1] + "/temp/belliveau/iter" + i + "/part-r-00000");
+					Path path = new Path(args[1] + "/tmp/iter" + i + "/part-r-00000");
 					FileSystem fs = path.getFileSystem(conf);
 					BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(path)));
 					String line;
@@ -185,10 +185,10 @@ public class Driver extends Configured implements Tool {
 				job.setOutputKeyClass(Text.class);
 				job.setOutputValueClass(Text.class);
 
-				FileInputFormat.setInputPaths(job, new Path(args[1] + "/temp/belliveau/job2"));
+				FileInputFormat.setInputPaths(job, new Path(args[1] + "/tmp/job2"));
 				job.setInputFormatClass(TextInputFormat.class);
 
-				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/iter" + (i + 1)));
+				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/iter" + (i + 1)));
 				job.setOutputFormatClass(TextOutputFormat.class);
 
 				job.setNumReduceTasks(1);
@@ -222,14 +222,14 @@ public class Driver extends Configured implements Tool {
 				job.setOutputValueClass(Text.class);
 				
 				if (i == 0)
-					FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter1"));
+					FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp/iter1"));
 				
 				else if (i == 1)
-					FileInputFormat.addInputPath(job, new Path(args[1] + "/temp/belliveau/iter8"));
+					FileInputFormat.addInputPath(job, new Path(args[1] + "/tmp/iter8"));
 				
 				job.setInputFormatClass(TextInputFormat.class);
 				
-				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/temp/belliveau/job5/p" + (i+1)));
+				FileOutputFormat.setOutputPath(job, new Path(args[1] + "/tmp/job5/p" + (i+1)));
 				job.setOutputFormatClass(TextOutputFormat.class);
 	
 				job.setNumReduceTasks(1);
@@ -273,7 +273,7 @@ public class Driver extends Configured implements Tool {
 			Configuration conf = new Configuration();
 			
 			//File one
-			String the_string_path_to_src = args[1] + "/temp/belliveau/job2/part-r-00000";
+			String the_string_path_to_src = args[1] + "/tmp/job2/part-r-00000";
 			String the_string_path_to_dst = args[1] + "/results/PageRank.outlink.out";
 			Path srcPath = new Path(the_string_path_to_src);
 			Path dstPath = new Path(the_string_path_to_dst);
@@ -282,7 +282,7 @@ public class Driver extends Configured implements Tool {
 			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
 	
 			//File two
-			the_string_path_to_src = args[1] + "/temp/belliveau/job5/p1/part-r-00000";
+			the_string_path_to_src = args[1] + "/tmp/job5/p1/part-r-00000";
 			the_string_path_to_dst = args[1] + "/results/PageRank.iter1.out";
 			srcPath = new Path(the_string_path_to_src);
 			dstPath = new Path(the_string_path_to_dst);
@@ -292,7 +292,7 @@ public class Driver extends Configured implements Tool {
 			
 
 			//File three
-			the_string_path_to_src = args[1] + "/temp/belliveau/job5/p2/part-r-00000";
+			the_string_path_to_src = args[1] + "/tmp/job5/p2/part-r-00000";
 			the_string_path_to_dst = args[1] + "/results/PageRank.iter8.out";
 			srcPath = new Path(the_string_path_to_src);
 			dstPath = new Path(the_string_path_to_dst);
@@ -301,7 +301,7 @@ public class Driver extends Configured implements Tool {
 			FileUtil.copy(fs_src, srcPath, fs_dst, dstPath, false, conf);
 
 			//File four
-			the_string_path_to_src = args[1] + "/temp/belliveau/job3/part-r-00000";
+			the_string_path_to_src = args[1] + "/tmp/job3/part-r-00000";
 			the_string_path_to_dst = args[1] + "/results/PageRank.n.out";
 			srcPath = new Path(the_string_path_to_src);
 			dstPath = new Path(the_string_path_to_dst);

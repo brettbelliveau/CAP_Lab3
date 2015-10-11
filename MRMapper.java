@@ -26,59 +26,52 @@ public class MRMapper extends Mapper<LongWritable, Text, Text, Text>{
     	
     	while(body.contains("[[")){
         	String split[] = body.split("\\[\\[", 2);
+        	String split2[] = split[1].split("\\]\\]", 2);
         	
-        	String secondsplit[] = split[1].split("\\]\\]", 2);
+        	if ((split2[0].contains("[["))) {
         	
-        	String linkstr = "";
-        	
-        	if (secondsplit[0].contains("[[")){
-        		String tempsplit[] = secondsplit[0].split("\\[\\[", 2);
-        		secondsplit = secondsplit[1].split("\\]\\]", 2);
-        		linkstr = tempsplit[1];
+	        	while (split2[0].contains("[[")){ //nested link(s)
+	        		
+	            	String splitinner[] = split2[0].split("\\[\\[", 2);
+	        		
+	        		String linkstr = extractLink(splitinner[1]);
+	            	
+	            	linkstr = linkstr.replaceAll(" ", "_");
+	            	link.set(linkstr);
+	        	
+	        		context.write(link, title);		
+	
+	            	split2 = split2[1].split("\\]\\]", 2);
+	        	}
+	        	if (split2.length > 1)
+	        		body = split2[1];
+	        	else
+	        		body = "";
         	}
-        	else
-        		linkstr = secondsplit[0];
+        	
+        	else {
+        		String linkstr = extractLink(split2[0]);
+            	
+            	linkstr = linkstr.replaceAll(" ", "_");
+            	link.set(linkstr);
+        	
+        		context.write(link, title);		
 
-        	if (secondsplit.length > 1)
-        		body = secondsplit[1];
-        	
-        	if(linkstr.contains("|")){
-        		String thirdsplit[] = linkstr.split("\\|", 2);
-        		linkstr = thirdsplit[0];
-        		if (thirdsplit.length > 1)
-        			secondsplit[1] = thirdsplit[1];
+	    		if (split2.length > 1)
+	        		body = split2[1];
+	    		else
+	        		body = "";
         	}
-        	
-        	linkstr = linkstr.replaceAll(" ", "_");
-        	link.set(linkstr);
-    	
-    		context.write(link, title);
-    	
-        	if (secondsplit.length < 2)
-        		break;
         }
     }
     
-    public boolean isValid(String link) {
-    	boolean valid = true;
+    public String extractLink(String body) {
     	
-    	if (link.contains("#"))
-    		valid = false;
-    	else if (link.contains("Help:"))
-    		valid = false;
-    	else if (link.contains("commons:"))
-    		valid = false;
-    	else if (link.contains("Special:"))
-    		valid = false;
-    	else if (link.contains("Category:"))
-    		valid = false;
-    	else if (link.contains("File:"))
-    		valid = false;
-    	else if (link.startsWith("/"))
-    		valid = false;
-    	else if (link.contains("wikt:"))
-    		valid = false;
-    		
-    	return valid;
+    	if (body.contains("|")){
+    		String thirdsplit[] = body.split("\\|", 2);
+    		body = thirdsplit[0];
+    	}
+
+    	return body;
     }
 }
